@@ -59,12 +59,12 @@ namespace Speckle.ConnectorUnity
         onProgressAction: (dict) =>
         {
           //Run on a dispatcher as GOs can only be retrieved on the main thread
-          Dispatcher.Instance().Enqueue(() =>
-          {
-            var val = dict.Values.Average() / receiver.TotalChildrenCount;
-            receiveProgress.gameObject.SetActive(true);
-            receiveProgress.value = (float) val;
-          });
+          // Dispatcher.Instance().Enqueue(() =>
+          // {
+          //   var val = dict.Values.Average() / receiver.TotalChildrenCount;
+          //   receiveProgress.gameObject.SetActive(true);
+          //   receiveProgress.value = (float) val;
+          // });
         });
 
 

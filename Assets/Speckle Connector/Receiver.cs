@@ -60,7 +60,7 @@ namespace Speckle.ConnectorUnity
       Action<GameObject> onDataReceivedAction = null, Action<ConcurrentDictionary<string, int>> onProgressAction = null,
       Action<string, Exception> onErrorAction = null, Action<int> onTotalChildrenCountKnown = null)
     {
-      StreamId = streamId;
+      StreamId = "549424b630";
       AutoReceive = autoReceive;
       DeleteOld = deleteOld;
       OnDataReceivedAction = onDataReceivedAction;
@@ -69,7 +69,7 @@ namespace Speckle.ConnectorUnity
       OnTotalChildrenCountKnown = onTotalChildrenCountKnown;
 
       Client = new Client(account ?? AccountManager.GetDefaultAccount());
-      
+
       //using the ApplicationPlaceholderObject to pass materials
       //available in Assets/Materials to the converters
       var materials = Resources.LoadAll("Materials", typeof(Material)).Cast<Material>()
@@ -134,15 +134,24 @@ namespace Speckle.ConnectorUnity
       try
       {
         Tracker.TrackPageview(Tracker.RECEIVE);
-
+        
+        System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
+        stopWatch.Start();
         var transport = new ServerTransport(Client.Account, StreamId);
         var @base = await Operations.Receive(
           objectId,
-          remoteTransport: transport,
-          onErrorAction: OnErrorAction,
-          onProgressAction: OnProgressAction,
-          onTotalChildrenCountKnown: OnTotalChildrenCountKnown
+          remoteTransport: transport
+          //onErrorAction: OnErrorAction,
+          //onProgressAction: OnProgressAction,
+          //onTotalChildrenCountKnown: OnTotalChildrenCountKnown
         );
+        stopWatch.Stop();
+        TimeSpan ts = stopWatch.Elapsed;
+
+        string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+          ts.Hours, ts.Minutes, ts.Seconds,
+          ts.Milliseconds / 10);
+        Debug.Log(elapsedTime);
         Dispatcher.Instance().Enqueue(() =>
         {
           var go = ConvertRecursivelyToNative(@base, commitId);
