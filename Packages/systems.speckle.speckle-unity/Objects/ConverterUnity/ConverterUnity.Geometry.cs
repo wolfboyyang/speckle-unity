@@ -117,18 +117,12 @@ namespace Objects.Converter.Unity
     }
 
 
-    /// <summary>
-    /// Converts the <see cref="MeshFilter"/> component on <paramref name="go"/> into a Speckle <see cref="Mesh"/>
-    /// </summary>
-    /// <param name="go">The Unity <see cref="GameObject"/> to convert</param>
-    /// <returns>The converted <see cref="Mesh"/>, <see langword="null"/> if no <see cref="MeshFilter"/> on <paramref name="go"/> exists</returns>
-    public Mesh MeshToSpeckle(GameObject go)
+    public List<Mesh> MeshToSpeckle(MeshFilter meshFilter)
     {
       //TODO: support multiple filters?
-      var filter = go.GetComponent<MeshFilter>();
-      if (filter == null) return null;
+      if (meshFilter == null) return null;
 
-      var nativeMesh = filter.mesh;
+      var nativeMesh = meshFilter.mesh;
       
       var nTriangles = nativeMesh.triangles;
       List<int> sFaces = new List<int>(nTriangles.Length * 4);
@@ -145,9 +139,9 @@ namespace Objects.Converter.Unity
       List<double> sVertices = new List<double>(nVertices.Length * 3);
       foreach (var vertex in nVertices)
       {
-        var p = go.transform.TransformPoint(vertex);
+        var p = meshFilter.gameObject.transform.TransformPoint(vertex);
         sVertices.Add(p.x);
-        sVertices.Add(p.z); //z and y swapped
+        sVertices.Add(p.z); //z and y swapped //TODO is this correct? LH -> RH
         sVertices.Add(p.y);
       }
       
@@ -166,7 +160,7 @@ namespace Objects.Converter.Unity
       var mesh = new Mesh();
       // get the speckle data from the go here
       // so that if the go comes from speckle, typed props will get overridden below
-      AttachUnityProperties(mesh, go);
+      //AttachUnityProperties(mesh, go);
       
       mesh.vertices = sVertices;
       mesh.faces = sFaces;
@@ -174,7 +168,7 @@ namespace Objects.Converter.Unity
       mesh.textureCoordinates = sTexCoords;
       mesh.units = ModelUnits;
 
-      return mesh;
+      return new List<Mesh>() {mesh}; //TODO split mesh by render material
     }
     #endregion
 
@@ -284,7 +278,7 @@ namespace Objects.Converter.Unity
         .Where(x => !excludeProps.Contains(x.Key))
         .ToDictionary(x => x.Key, x => x.Value);
 
-        AttachSpeckleProperties(go, properties);
+        //AttachSpeckleProperties(go, properties);
       return go;
     }
     
@@ -329,7 +323,6 @@ namespace Objects.Converter.Unity
       }
       nativeMaterials = materials.ToArray();
 
-      Debug.Assert(verts.Count >= 0);
       Debug.Assert(verts.Count >= 0);
       nativeMesh = new UnityEngine.Mesh();
       

@@ -4006,11 +4006,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SelectedAccountIndex: 0
-  SelectedStreamIndex: 1
+  SelectedStreamIndex: 0
   SelectedBranchIndex: 0
   SelectedCommitIndex: 0
   OldSelectedAccountIndex: 0
-  OldSelectedStreamIndex: 1
+  OldSelectedStreamIndex: 0
 --- !u!4 &2060322467
 Transform:
   m_ObjectHideFlags: 0
@@ -4034,7 +4034,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2060322465}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed6cbf9ce4dca0349997d163ec9bce7e, type: 3}
+  m_Script: {fileID: 11500000, guid: 804965d9711b61849bd04676bab72203, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &2066864134

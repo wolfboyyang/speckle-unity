@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Objects.Converter.Unity;
 using Sentry;
+using Speckle.ConnectorUnity.Converter;
 using Speckle.Core.Logging;
 using Speckle.Core.Models;
 using UnityEngine;
 
 namespace Speckle.ConnectorUnity
 {
+    [Obsolete]
   public class RecursiveConverter : MonoBehaviour
   {
 

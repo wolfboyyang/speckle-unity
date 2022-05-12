@@ -177,7 +177,7 @@ namespace Speckle.ConnectorUnity
             onTotalChildrenCountKnown: count => { _totalChildrenCount = count; }
         );
 
-        var go = _streamManager.ConvertRecursivelyToNative(@base,
+        var gos = _streamManager.ConvertRecursivelyToNative(@base,
             Branches[SelectedBranchIndex].commits.items[SelectedCommitIndex].id);
         
         try
