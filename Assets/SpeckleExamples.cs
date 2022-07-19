@@ -2,13 +2,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using Speckle.Core.Credentials;
 using System.Linq;
+using Speckle.Core.Api;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using Stream = Speckle.Core.Api.Stream;
+using Text = UnityEngine.UI.Text;
+
+using Realms;
+using System.Threading.Tasks;
 
 namespace Speckle.ConnectorUnity
 {
-  public class SpeckleExamples : MonoBehaviour
+    public class SpeckleExamples : MonoBehaviour
   {
     public Text SelectStreamText;
     public Text DetailsStreamText;
@@ -22,26 +27,41 @@ namespace Speckle.ConnectorUnity
     private List<Stream> StreamList = null;
     private Stream SelectedStream = null;
     private List<GameObject> StreamPanels = new List<GameObject>();
+
+    private Client client;
     
 
     async void Start()
     {
+
+      // Check Internet Access
+      if(Application.internetReachability == NetworkReachability.NotReachable)
+      {
+        Debug.Log("Error. Check internet connection!");
+      }
+
       if (SelectStreamText == null || StreamSelectionDropdown == null)
       {
         Debug.Log("Please set all input fields on _SpeckleExamples");
         return;
       }
 
-      var defaultAccount = AccountManager.GetDefaultAccount();
-      if (defaultAccount == null)
+      var defaultAccount = new Account()
       {
-        Debug.Log("Please set a default account in SpeckleManager");
-        return;
-      }
+        serverInfo = new ServerInfo
+        {
+          company = "RWTH Aachen",
+          name = "Robots do what you see",
+          url = "https://speckle.xyz"
+        },
+        token = "6bef49787348ec96369e89041b56f97fb0593f5f7f",
+      };
 
       SelectStreamText.text = $"Select a stream on {defaultAccount.serverInfo.name}:";
 
-      StreamList = await Streams.List(30);
+      client = new Client(defaultAccount);
+      
+      StreamList = await client.StreamsGet(30);
       if (!StreamList.Any())
       {
         Debug.Log("There are no streams in your account, please create one online.");
@@ -62,7 +82,8 @@ namespace Speckle.ConnectorUnity
 
       AddReceiverBtn.onClick.AddListener(AddReceiver);
       AddSenderBtn.onClick.AddListener(AddSender);
-    }
+            
+        }
 
     public void StreamSelectionChanged(int index)
     {
@@ -83,7 +104,7 @@ namespace Speckle.ConnectorUnity
     private async void AddReceiver()
     {
       var autoReceive = AutoReceiveToggle.isOn;
-      var stream = await Streams.Get(SelectedStream.id, 30);
+      var stream = await client.StreamGet(SelectedStream.id, 30);
 
       var streamPrefab = Instantiate(StreamPanel, new Vector3(0, 0, 0),
         Quaternion.identity);
@@ -91,25 +112,25 @@ namespace Speckle.ConnectorUnity
       //set position
       streamPrefab.transform.SetParent(StreamsCanvas.transform);
       var rt = streamPrefab.GetComponent<RectTransform>();
-      rt.anchoredPosition = new Vector3(-10, -110 - StreamPanels.Count * 110, 0);
+      rt.anchoredPosition = new Vector3(-10, -310 - StreamPanels.Count * 110, 0);
 
-      streamPrefab.AddComponent<InteractionLogic>().InitReceiver(stream, autoReceive);
+      streamPrefab.AddComponent<InteractionLogic>().InitReceiver(stream, autoReceive, client.Account);
 
       StreamPanels.Add(streamPrefab);
     }
 
     private async void AddSender()
     {
-      var stream = await Streams.Get(SelectedStream.id, 10);
+      var stream = await client.StreamGet(SelectedStream.id, 10);
 
       var streamPrefab = Instantiate(StreamPanel, new Vector3(0, 0, 0),
         Quaternion.identity);
 
       streamPrefab.transform.SetParent(StreamsCanvas.transform);
       var rt = streamPrefab.GetComponent<RectTransform>();
-      rt.anchoredPosition = new Vector3(-10, -110 - StreamPanels.Count * 110, 0);
+      rt.anchoredPosition = new Vector3(-10, -310 - StreamPanels.Count * 110, 0);
 
-      streamPrefab.AddComponent<InteractionLogic>().InitSender(stream);
+      streamPrefab.AddComponent<InteractionLogic>().InitSender(stream, client.Account);
 
       StreamPanels.Add(streamPrefab);
     }
@@ -125,7 +146,7 @@ namespace Speckle.ConnectorUnity
       for (var i = 0; i < StreamPanels.Count; i++)
       {
         var rt = StreamPanels[i].GetComponent<RectTransform>();
-        rt.anchoredPosition = new Vector3(-10, -110 - i * 110, 0);
+        rt.anchoredPosition = new Vector3(-10, -310 - i * 110, 0);
       }
     }
   }

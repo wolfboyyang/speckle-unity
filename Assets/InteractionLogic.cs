@@ -3,22 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Speckle.Core.Api;
+using Speckle.Core.Credentials;
 using Speckle.Core.Logging;
 using UnityEngine;
 using UnityEngine.UI;
+using Text = UnityEngine.UI.Text;
 
 namespace Speckle.ConnectorUnity
 {
   public class InteractionLogic : MonoBehaviour
   {
-    private Receiver receiver;
+    private MobileReceiver receiver;
 
-    public void InitReceiver(Stream stream, bool autoReceive)
+    public void InitReceiver(Stream stream, bool autoReceive, Account account)
     {
       gameObject.name = $"receiver-{stream.id}-{Guid.NewGuid().ToString()}";
       InitRemove();
 
-      receiver = gameObject.AddComponent<Receiver>();
+      receiver = gameObject.AddComponent<MobileReceiver>();
       receiver.Stream = stream;
 
       var btn = gameObject.transform.Find("Btn").GetComponentInChildren<Button>();
@@ -46,7 +48,7 @@ namespace Speckle.ConnectorUnity
         receiver.BranchName = receiver.Stream.branches.items[index].name;
       });
 
-      receiver.Init(stream.id, autoReceive, true,
+      receiver.Init(stream.id, autoReceive, true, account,
         onDataReceivedAction: (go) =>
         {
           statusText.text = $"Received {go.name}";
@@ -101,7 +103,7 @@ namespace Speckle.ConnectorUnity
       }
     }
 
-    public void InitSender(Stream stream)
+    public void InitSender(Stream stream, Account account)
     {
       gameObject.name = $"sender-{stream.id}-{Guid.NewGuid().ToString()}";
       InitRemove();
@@ -141,7 +143,7 @@ namespace Speckle.ConnectorUnity
           statusText.text = "Sending...";
           try
           {
-            sender.Send(stream.id, objs,
+            sender.Send(stream.id, objs, account,
               onProgressAction: (dict) =>
               {
                 //Run on a dispatcher as GOs can only be retrieved on the main thread
